@@ -46,7 +46,7 @@ if __name__ == "__main__":
     n_dim = 512
     n_head = 8
     input = torch.randn(n_batch, n_seq, n_dim)
-    mha = MultiHeadAttention(n_batch, n_seq, n_dim, n_head)
+    mha = MultiHeadAttention(n_seq, n_dim, n_head)
     output = mha(input, input, input)
 
     print(output.shape)
