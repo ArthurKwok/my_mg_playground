@@ -6,7 +6,7 @@ import math
 
 
 class MultiHeadAttention(nn.Module):
-    def __init__(self, n_batch, n_seq, n_dim, n_head):
+    def __init__(self, n_seq, n_dim, n_head):
         super().__init__()
 
         self.n_dim = n_dim
