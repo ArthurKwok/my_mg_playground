@@ -35,7 +35,7 @@ class MultiHeadAttention(nn.Module):
         # score: (n_batch, n_seq, d_k, d_k)
         attention = torch.matmul(score, V)
         # attention: (n_batch, n_seq, d_k, n_head)
-        attention = attention.view(-1, n_seq, n_dim)
+        attention = attention.view(-1, self.n_seq, self.n_dim)
 
         return self.w_o(attention)
 
