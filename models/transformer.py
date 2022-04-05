@@ -4,7 +4,7 @@ import pytorch_lightning as pl
 import torch.nn.functional as F
 import math
 
-from attention import MultiHeadAttention
+from .attention import MultiHeadAttention
 
 class TransformerEncoderLayer(nn.Module):
     def __init__(self, n_seq, n_dim, n_head):
