@@ -19,7 +19,7 @@ class MultiHeadAttention(nn.Module):
         self.w_v = nn.Linear(n_dim, n_dim)
         self.w_o = nn.Linear(n_dim, n_dim)
     
-    def forward(self, q, k, v):
+    def forward(self, q, k, v, mask=None):
         # q, k, v: (n_batch, n_seq, n_dim)
         Q = self.w_q(q)
         K = self.w_k(k)
@@ -31,8 +31,10 @@ class MultiHeadAttention(nn.Module):
         V = V.view(-1, self.n_seq, self.d_k, self.n_head)
 
         score = torch.matmul(Q, K) / math.sqrt(self.d_k)
-        score = F.softmax(score, dim=-1)
         # score: (n_batch, n_seq, d_k, d_k)
+        if mask:
+            score = mask * score
+        score = F.softmax(score, dim=-1)
         attention = torch.matmul(score, V)
         # attention: (n_batch, n_seq, d_k, n_head)
         attention = attention.view(-1, self.n_seq, self.n_dim)
