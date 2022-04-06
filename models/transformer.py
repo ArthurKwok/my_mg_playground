@@ -61,13 +61,11 @@ class PositionalEncoding(nn.Module):
 class TransformerEncoder(nn.Module):
     def __init__(self, n_seq, n_dim, n_head, n_layer, d_ff=2048):
         super().__init__()
-        self.pe = PositionalEncoding(n_seq, n_dim)
         self.layers = nn.ModuleList([TransformerEncoderLayer(n_seq, n_dim, n_head, d_ff)
                        for i in range(n_layer)])
 
     def forward(self, x):
         # x: (n_batch, n_seq, n_dim)
-        x = self.pe(x)
         for layer in self.layers:
             x = layer(x)
         return x
@@ -76,14 +74,12 @@ class TransformerEncoder(nn.Module):
 class TransformerDecoder(nn.Module):
     def __init__(self, n_seq, n_dim, n_head, n_layer, d_ff=2048):
         super().__init__()
-        self.pe = PositionalEncoding(n_seq, n_dim)
         self.layers = nn.ModuleList([TransformerDecoderLayer(n_seq, n_dim, n_head, d_ff)
                        for i in range(n_layer)])
 
     def forward(self, x, z):
         # x: (n_batch, n_seq, n_dim)
         # z: (n_batch, n_seq, n_dim)
-        x = self.pe(x)
         for layer in self.layers:
             x = layer(x, z)
         return x
