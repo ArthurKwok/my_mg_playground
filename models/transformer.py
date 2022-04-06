@@ -6,6 +6,7 @@ import math
 
 from .attention import MultiHeadAttention
 
+
 class TransformerEncoderLayer(nn.Module):
     def __init__(self, n_seq, n_dim, n_head, d_ff):
         super().__init__()
@@ -20,6 +21,7 @@ class TransformerEncoderLayer(nn.Module):
         x = self.ln1(x + self.mha(x, x, x))
         x = self.ln2(x + self.ff(x))
         return x
+
 
 class TransformerDecoderLayer(nn.Module):
     def __init__(self, n_seq, n_dim, n_head, d_ff):
@@ -39,14 +41,12 @@ class TransformerDecoderLayer(nn.Module):
         x = self.ln3(x + self.ff(x))
         return x
 
-    
+
 class PositionalEncoding(nn.Module):
     def __init__(self, n_seq, n_dim):
         super().__init__()
         self.pe = torch.zeros(n_seq, n_dim)
         pos = torch.arange(0, n_seq)
-        # i = torch.arange(0, n_dim).unsqueeze(0) # row vector
-
         for i in range(n_dim):
             if i % 2 == 0:
                 self.pe[:, i] = torch.sin(pos / (10000**(2*i/n_dim)))
@@ -56,3 +56,34 @@ class PositionalEncoding(nn.Module):
     def forward(self, x):
         # x: (..., n_seq, n_dim)
         return self.pe + x
+
+
+class TransformerEncoder(nn.Module):
+    def __init__(self, n_seq, n_dim, n_head, n_layer, d_ff=2048):
+        super().__init__()
+        self.pe = PositionalEncoding(n_seq, n_dim)
+        self.layers = nn.ModuleList([TransformerEncoderLayer(n_seq, n_dim, n_head, d_ff)
+                       for i in range(n_layer)])
+
+    def forward(self, x):
+        # x: (n_batch, n_seq, n_dim)
+        x = self.pe(x)
+        for layer in self.layers:
+            x = layer(x)
+        return x
+
+
+class TransformerDecoder(nn.Module):
+    def __init__(self, n_seq, n_dim, n_head, n_layer, d_ff=2048):
+        super().__init__()
+        self.pe = PositionalEncoding(n_seq, n_dim)
+        self.layers = nn.ModuleList([TransformerDecoderLayer(n_seq, n_dim, n_head, d_ff)
+                       for i in range(n_layer)])
+
+    def forward(self, x, z):
+        # x: (n_batch, n_seq, n_dim)
+        # z: (n_batch, n_seq, n_dim)
+        x = self.pe(x)
+        for layer in self.layers:
+            x = layer(x, z)
+        return x
