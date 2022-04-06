@@ -38,3 +38,21 @@ class TransformerDecoderLayer(nn.Module):
         x = self.ln2(x + self.mha2(x, z, z)) # Q from decoder, K-V pair from encoder
         x = self.ln3(x + self.ff(x))
         return x
+
+    
+class PositionalEncoding(nn.Module):
+    def __init__(self, n_seq, n_dim):
+        super().__init__()
+        self.pe = torch.zeros(n_seq, n_dim)
+        pos = torch.arange(0, n_seq)
+        # i = torch.arange(0, n_dim).unsqueeze(0) # row vector
+
+        for i in range(n_dim):
+            if i % 2 == 0:
+                self.pe[:, i] = torch.sin(pos / (10000**(2*i/n_dim)))
+            else:
+                self.pe[:, i] = torch.cos(pos / (10000**(2*i/n_dim)))
+
+    def forward(self, x):
+        # x: (..., n_seq, n_dim)
+        return self.pe + x
